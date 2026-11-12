@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="WARDEN logo, mech silhouette">
+  <title>WARDEN — Frame</title>
+  <g fill="#ffb000" fill-rule="evenodd" stroke="#ffb000" stroke-width="2" stroke-linejoin="round">
+    <!-- head with visor slit -->
+    <path d="M54 16h20l7 11v13H47V27Z M54 26h20v5H54Z"/>
+    <!-- pauldrons -->
+    <path d="M6 28 38 20l8 44-30 10Z"/>
+    <path d="M122 28 90 20l-8 44 30 10Z"/>
+    <!-- torso with reactor cut-out -->
+    <path d="M52 46h24l6 20-5 34H51l-5-34Z M64 62a7 7 0 1 0 .01 0Z"/>
+    <!-- feet -->
+    <path d="M47 106h14v10H41Z M67 106h14l6 10H67Z"/>
+  </g>
+</svg>

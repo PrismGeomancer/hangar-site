@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="WARDEN logo, visor hexagon">
+  <title>WARDEN — Visor</title>
+  <!-- solid hex helmet with a V-shaped visor cut-out (transparent) -->
+  <path fill="#ffb000" fill-rule="evenodd" stroke="#ffb000" stroke-width="6" stroke-linejoin="round"
+        d="M64 9 114 37v54L64 119 14 91V37Z
+           M28 50H100L92 70H74L64 80 54 70H36Z"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="WARDEN logo, hold gauge">
+  <title>WARDEN — Hold</title>
+  <!-- gauge track + filled arc (~78%), gap at top-left -->
+  <circle cx="64" cy="64" r="50" fill="none" stroke="#ffb000" stroke-opacity=".22" stroke-width="9"/>
+  <circle cx="64" cy="64" r="50" fill="none" stroke="#ffb000" stroke-width="9" stroke-linecap="butt"
+          stroke-dasharray="245 400" transform="rotate(-90 64 64)"/>
+  <!-- W monogram -->
+  <path d="M36 42l12 42 16-26 16 26 12-42" fill="none" stroke="#ffb000" stroke-width="10" stroke-linejoin="miter" stroke-linecap="butt"/>
+</svg>

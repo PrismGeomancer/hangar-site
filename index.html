@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>WARDEN — Hold the line</title>
+  <meta name="description" content="WARDEN: a forty-tonne guardian that only wakes for those who hold. Hold the line.">
+  <meta name="theme-color" content="#07080a">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cpath d=%22M16 2 29 9.5v13L16 30 3 22.5v-13Z%22 fill=%22%23ffb000%22/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Fonts load without blocking first paint (swap in when ready) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Rajdhani:wght@400;500;600&family=Share+Tech+Mono&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Rajdhani:wght@400;500;600&family=Share+Tech+Mono&display=swap"></noscript>
+  <!-- Start the heavy models downloading in parallel with the JS bundle -->
+  <link rel="preload" as="fetch" crossorigin href="./models/hangar/mech.glb">
+  <link rel="preload" as="fetch" crossorigin href="./models/hangar/drone.glb">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body class="is-cold">
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="flash" aria-hidden="true"></div>
+  <div class="scrim scrim-l" aria-hidden="true"></div><div class="scrim scrim-r" aria-hidden="true"></div><div class="scrim scrim-b" aria-hidden="true"></div>
+
+  <!-- Loader: firmware boot behind two blast-door halves -->
+  <div class="loader" role="status" aria-live="polite">
+    <div class="ld-door ld-top"></div>
+    <div class="ld-door ld-bot"></div>
+    <div class="ld-bar"><i></i></div>
+    <div class="ld-in">
+      <div class="ld-up">
+        <div class="ld-head mono"><span>Warden</span><span>WD-1 FW 1.0.0</span></div>
+        <p class="ld-num"><span class="ld-pct">000</span><i>%</i></p>
+      </div>
+      <ol class="ld-log mono ld-down">
+        <li data-at="0.02">› Bay 09 link established</li>
+        <li data-at="0.2">› Mounting chassis mesh A7-019</li>
+        <li data-at="0.45">› Loading actuator map ··· 41/41</li>
+        <li data-at="0.7">› Authority keys ··· renounced</li>
+        <li data-at="0.92">› Warming shaders</li>
+        <li data-at="1">› Standby. Awaiting a holder.</li>
+      </ol>
+    </div>
+  </div>
+
+  <header class="nav">
+    <a class="brand" href="#top" aria-label="WARDEN home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 29 9.5v13L16 30 3 22.5v-13Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 11.5l3 9.5 4-7 4 7 3-9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      <span>War<b>den</b></span>
+    </a>
+    <nav class="links" aria-label="Primary">
+      <a href="#warden">The Warden</a>
+      <a href="#systems">Systems</a>
+      <a href="#numbers">Numbers</a>
+      <a href="#program">How to hold</a>
+    </nav>
+    <div class="nav-r">
+      <button class="snd mono" type="button" aria-pressed="false" aria-label="Toggle sound">Snd <span class="snd-bars"><i></i><i></i><i></i><i></i></span><span class="snd-state">Off</span></button>
+      <a class="btn btn-amber x-link" href="#apply" data-magnetic>Follow on X ↗</a>
+    </div>
+  </header>
+
+  <!-- HUD frame: boots during power-up -->
+  <div class="hud" aria-hidden="true">
+    <i class="hc tl"></i><i class="hc tr"></i><i class="hc bl"></i><i class="hc br"></i>
+    <div class="hud-top mono"><span class="hud-id">WD-1 · A7-019</span><span class="hud-sep"></span><span class="hud-state">Reactor cold</span><span class="hud-sep"></span><span class="hud-clock">03:12:07</span></div>
+    <div class="hud-side mono">
+      <div class="rd"><span>RCTR</span><b class="rd-rctr">0.3%</b><i><em style="--v:.02"></em></i></div>
+      <div class="rd"><span>CORE</span><b class="rd-core">31°C</b><i><em style="--v:.05"></em></i></div>
+      <div class="rd"><span>HYD</span><b class="rd-hyd">0 bar</b><i><em style="--v:0"></em></i></div>
+      <div class="rd"><span>SYNC</span><b class="rd-sync">—</b><i><em style="--v:0"></em></i></div>
+    </div>
+    <div class="hud-scan"></div>
+    <div class="hud-reticle"><i></i><i></i><i></i><i></i><span class="mono">WARDEN<br><b>PILOT SEAT · VACANT</b></span></div>
+    <ol class="hud-boot mono"></ol>
+  </div>
+
+  <!-- Hotspot markers (positioned from 3D) -->
+  <div class="spots" role="group" aria-label="Systems hotspots"></div>
+  <svg class="leader" aria-hidden="true"><line x1="0" y1="0" x2="0" y2="0"/><circle r="3"/></svg>
+  <div class="ruler" aria-hidden="true"><i class="ruler-line"></i><span class="ruler-top mono">11.4 m</span><span class="ruler-bot mono">0.0</span></div>
+
+  <!-- Press-and-hold gauge that follows the pointer in the hero -->
+  <div class="hold" aria-hidden="true">
+    <svg viewBox="0 0 100 100"><circle class="h-track" cx="50" cy="50" r="44"/><circle class="h-fill" cx="50" cy="50" r="44" pathLength="1"/></svg>
+    <span class="h-label mono">Hold</span>
+  </div>
+
+  <main id="top">
+    <section class="sec hero" data-shot="hero">
+      <div class="pin">
+        <div class="hero-copy">
+          <p class="eyebrow mono"><span class="blink"></span>WARDEN · Authorities renounced · Bay 09</p>
+          <h1 class="title" aria-label="WARDEN — Hold the line"><span class="t1">Hold the line</span><span class="t2">Warden</span></h1>
+          <p class="tag">Forty tons. <em>Nobody steers it.</em></p>
+          <p class="lede">WARDEN’s authorities are renounced. The machine stands in Bay 09, cold since the last shift. It doesn’t wake for noise. It wakes for holders. Hold to bring it up.</p>
+        </div>
+        <div class="ignite">
+          <button class="gauge" type="button" aria-label="Press and hold to power up the Warden">
+            <svg viewBox="0 0 160 160" aria-hidden="true">
+              <circle class="g-ticks" cx="80" cy="80" r="74"/>
+              <circle class="g-track" cx="80" cy="80" r="64"/>
+              <circle class="g-fill" cx="80" cy="80" r="64" pathLength="1"/>
+            </svg>
+            <span class="g-core"><span class="g-label">Hold to<br>initiate</span><span class="g-pct mono">00</span></span>
+          </button>
+          <div class="ignite-copy">
+            <p class="ignite-title mono">Cold start</p>
+            <p class="ignite-hint">Press and hold anywhere, or hold <kbd>Space</kbd>, to bring the reactor up. Holding is the whole idea.</p>
+          </div>
+        </div>
+        <p class="scroll-cue mono"><span><b>Move</b> to aim the drone’s searchlight</span><span><b>Scroll</b> to walk around it</span><i></i></p>
+      </div>
+    </section>
+
+    <section class="sec power" id="warden" data-shot="power">
+      <div class="pin">
+        <div class="block block-r">
+          <p class="kicker mono">01 — Cold start</p>
+          <h2>It only wakes if you <em>don’t let go.</em></h2>
+          <p class="body">The Warden idles at 0.3% reactor draw, just enough to keep the gyros warm. It has no autopilot and no override. What you just did, holding until the lights came on, is the only way to start it.</p>
+          <ol class="steps">
+            <li><b class="mono">T+0.0</b><span><strong>Ignition.</strong> You press and the core starts to come up. Let go and it stops.</span></li>
+            <li><b class="mono">T+3.4</b><span><strong>Handshake.</strong> Forty-one actuators report in, heel to crown, in 0.6 s.</span></li>
+            <li><b class="mono">T+9.2</b><span><strong>Sync.</strong> The harness calibrates to you. Nobody else is steering.</span></li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <div id="systems">
+      <section class="sec spec" data-shot="reactor" data-spot="0">
+        <div class="pin">
+          <article class="card card-l">
+            <p class="kicker mono"><span>02.1</span> Systems · Reactor</p>
+            <h3>A heart with no keys. Nobody can reopen it.</h3>
+            <p class="body">The core sits behind the chest plate, sealed at the factory. Authorities were renounced at launch, so nobody holds a key, not the team and not a whale. The rules cannot be changed from the inside. What is running is what keeps running.</p>
+            <dl class="data mono"><div><dt>Authorities</dt><dd>Renounced</dd></div><div class="d-supply"><dt>Supply</dt><dd class="v-supply"></dd></div><div><dt>Keys</dt><dd>None</dd></div></dl>
+          </article>
+        </div>
+      </section>
+      <section class="sec spec" data-shot="actuators" data-spot="1">
+        <div class="pin">
+          <article class="card card-r">
+            <p class="kicker mono"><span>02.2</span> Systems · Actuators</p>
+            <h3>Forty-one joints. One flinch won’t drop it.</h3>
+            <p class="body">A body is only as steady as its weakest joint. Every actuator has its own controller, and none of them panics when the one beside it flinches. The knees carry 1,900 kilonewtons at full stride and still correct for a loose paving slab in under a millisecond. Holders are the joints.</p>
+            <dl class="data mono"><div><dt>Joints</dt><dd>41</dd></div><div><dt>Response</dt><dd>0.8 ms</dd></div><div><dt>Knee load</dt><dd>1,900 kN</dd></div></dl>
+          </article>
+        </div>
+      </section>
+      <section class="sec spec" data-shot="armour" data-spot="2">
+        <div class="pin">
+          <article class="card card-l">
+            <p class="kicker mono"><span>02.3</span> Systems · Armour</p>
+            <h3>Bolted, not welded. Nothing here is hidden.</h3>
+            <p class="body">Layered ceramic over a titanium lattice, hung in 212 panels, each one removable with a single socket size. Anyone can inspect it and nothing is welded shut. The project is the same: the contract is public and the authorities are renounced. Check it yourself. We would rather you did.</p>
+            <dl class="data mono"><div><dt>Composite</dt><dd>180 mm</dd></div><div><dt>Panels</dt><dd>212</dd></div><div><dt>Field swap</dt><dd>40 min</dd></div></dl>
+          </article>
+        </div>
+      </section>
+      <section class="sec spec" data-shot="weapons" data-spot="3">
+        <div class="pin">
+          <article class="card card-r">
+            <p class="kicker mono"><span>02.4</span> Systems · Hardpoints</p>
+            <h3>A deterrent. Built to never fire.</h3>
+            <p class="body">A six-barrel rotary on the right shoulder, a twelve-cell pod on the left, and a 2.1-metre forearm shield you will use more than both. Trials fire inert rounds only. Its job is to stand there and make anyone with a bad idea reconsider. Most of your hours go into holding.</p>
+            <dl class="data mono"><div><dt>Rotary</dt><dd>30 mm × 6</dd></div><div><dt>Pod</dt><dd>12 cells</dd></div><div><dt>Shield</dt><dd>2.1 m</dd></div></dl>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <section class="sec stats" id="numbers" data-shot="stats">
+      <div class="pin">
+        <div class="block block-l">
+          <p class="kicker mono">03 — The machine, by the numbers</p>
+          <ul class="figs">
+            <li><b data-count="11.4" data-dec="1">0</b><i>m</i><span class="mono">Standing height, heel to crown</span></li>
+            <li><b data-count="40" data-dec="0">0</b><i>t</i><span class="mono">Mass with a full core, and a holder in the seat</span></li>
+            <li class="fig-supply"><b data-count="42" data-dec="0">0</b><i>MW</i><span class="mono">Continuous reactor output</span></li>
+            <li><b data-count="68" data-dec="0">0</b><i>km/h</i><span class="mono">Top speed on flat ground. Yes, it runs.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec program" id="program" data-shot="program">
+      <div class="pin">
+        <div class="block block-l wide">
+          <p class="kicker mono">04 — How to hold</p>
+          <h2>Hold the button. Hold the coin. <em>Hold your nerve.</em></h2>
+          <ol class="timeline">
+            <li><b class="mono">Hold 01</b><strong>The button</strong><span>Press and keep pressing. The reactor only comes up while you are on the control. You already did this once.</span></li>
+            <li><b class="mono">Hold 02</b><strong>The coin</strong><span>Same rule, longer shift. The Warden has no autopilot, so it stands exactly as long as its holders do.</span></li>
+            <li><b class="mono">Hold 03</b><strong>Your nerve</strong><span>Alarms will go off. Red lights, a lurching floor. The machine stays upright because no single joint panics.</span></li>
+            <li><b class="mono">Hold 04</b><strong>The line</strong><span>Nobody holds it alone. One joint can flinch. Forty-one holding together is a forty-tonne wall.</span></li>
+          </ol>
+          <div class="req">
+            <p class="mono req-t">You bring</p>
+            <ul>
+              <li>Hands that stay on the control when it shakes</li>
+              <li>Sustained 5 g tolerance, and a stomach for red candles</li>
+              <li>Standing height 1.60–1.93 m. The seat is not adjustable; the pilot is.</li>
+              <li>Calm. We test for it.</li>
+            </ul>
+          </div>
+        </div>
+        <figure class="quote">
+          <img src="./img/hangar/pilot.webp" alt="Captain Ines Varga in a grey flight suit, helmet under her arm, in the hangar" width="960" height="1285" loading="lazy">
+          <blockquote>“Everyone’s finger twitches at the first alarm. The job is keeping it where it is.”</blockquote>
+          <figcaption class="mono">Capt. Ines Varga · Pilot 004</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="sec apply" id="apply" data-shot="apply">
+      <div class="pin">
+        <div class="cta">
+          <p class="kicker mono">05 — The seat is open</p>
+          <h2 class="cta-title">Your shift<br>starts at <em>dawn.</em></h2>
+          <p class="body">Anyone can take a seat, and nobody arrives with mech experience. Nobody has any. Follow the crew on X and hold the line with us.</p>
+          <div class="cta-row">
+            <a class="btn btn-amber btn-lg x-link" href="#apply" data-magnetic data-cursor="label" data-cursor-label="Go">Take the seat</a>
+            <a class="btn btn-ghost btn-lg ca-copy" href="#apply" data-magnetic>Copy contract address</a>
+          </div>
+          <p class="cta-meta mono">Authorities renounced · Northfield, Gate C</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="foot-in">
+      <div class="foot-brand">
+        <p class="foot-mark">War<b>den</b></p>
+        <p class="mono">WARDEN · Northfield Proving Ground · Bay 09</p>
+      </div>
+      <nav class="foot-cols" aria-label="Footer">
+        <div><p class="mono">Hold</p><a href="#program">How to hold</a><a href="#numbers">Requirements</a><a href="#apply">Take the seat</a></div>
+        <div><p class="mono">Warden</p><a href="#warden">The Warden</a><a href="#systems">Systems</a><a href="#numbers">Numbers</a></div>
+        <div><p class="mono">Follow</p><a class="x-link" href="#apply">X</a><a class="ca-copy" href="#apply">Contract</a><span>Hold the line</span></div>
+      </nav>
+      <p class="foot-legal mono"><span>© 2026 WARDEN. The machine and its crew are fictional.</span><span>The Warden is not for sale. The seat is yours to hold.</span><span>Not financial advice. Meme coins are volatile and can lose all their value.</span></p>
+    </div>
+  </footer>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
