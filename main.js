@@ -12,7 +12,7 @@ import { mechUniforms, patchMech, scanSheet, Steam, Sparks, BeamDust } from './f
 import { Sound } from './audio.js';
 
 // Fill these in: X_URL (profile link), CONTRACT (token address), SUPPLY (e.g. '1,000,000,000').
-const CONFIG = { X_URL: '', CONTRACT: '', SUPPLY: '' };
+const CONFIG = { X_URL: 'https://x.com/Warden_project', CONTRACT: '', SUPPLY: '' };
 
 const DBG = new URLSearchParams(location.search);
 const D = Math.PI / 180;
